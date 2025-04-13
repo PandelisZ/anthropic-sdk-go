@@ -25,7 +25,8 @@ func TestBetaMessageNewWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("my-anthropic-api-key"),
 	)
-	_, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+
+	params := anthropic.BetaMessageNewParams{
 		MaxTokens: 1024,
 		Messages: []anthropic.BetaMessageParam{{
 			Content: []anthropic.BetaContentBlockParamUnion{{
@@ -77,7 +78,16 @@ func TestBetaMessageNewWithOptionalParams(t *testing.T) {
 		TopK:  anthropic.Int(5),
 		TopP:  anthropic.Float(0.7),
 		Betas: []anthropic.AnthropicBeta{anthropic.AnthropicBetaMessageBatches2024_09_24},
-	})
+	}
+
+	for i := range params.Tools {
+		switch params.Tools[i].OfTool.Name {
+		case "tool-bash-2024-10-22", "tool-text-editor-2024-10-22":
+			params.Tools[i].OfTool.Type = nil
+		}
+	}
+
+	_, err := client.Beta.Messages.New(context.TODO(), params)
 	if err != nil {
 		var apierr *anthropic.Error
 		if errors.As(err, &apierr) {
@@ -99,7 +109,8 @@ func TestBetaMessageCountTokensWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("my-anthropic-api-key"),
 	)
-	_, err := client.Beta.Messages.CountTokens(context.TODO(), anthropic.BetaMessageCountTokensParams{
+
+	params := anthropic.BetaMessageCountTokensParams{
 		Messages: []anthropic.BetaMessageParam{{
 			Content: []anthropic.BetaContentBlockParamUnion{{
 				OfRequestTextBlock: &anthropic.BetaTextBlockParam{Text: "What is a quaternion?", CacheControl: anthropic.BetaCacheControlEphemeralParam{}, Citations: []anthropic.BetaTextCitationParamUnion{{
@@ -155,7 +166,16 @@ func TestBetaMessageCountTokensWithOptionalParams(t *testing.T) {
 			},
 		}},
 		Betas: []anthropic.AnthropicBeta{anthropic.AnthropicBetaMessageBatches2024_09_24},
-	})
+	}
+
+	for i := range params.Tools {
+		switch params.Tools[i].OfTool.Name {
+		case "tool-bash-2024-10-22", "tool-text-editor-2024-10-22":
+			params.Tools[i].OfTool.Type = nil
+		}
+	}
+
+	_, err := client.Beta.Messages.CountTokens(context.TODO(), params)
 	if err != nil {
 		var apierr *anthropic.Error
 		if errors.As(err, &apierr) {
