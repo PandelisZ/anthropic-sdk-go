@@ -148,32 +148,35 @@ func (s *Stream[T]) Next() bool {
 		return false
 	}
 
-	for s.decoder.Next() {
-		switch s.decoder.Event().Type {
-		case "completion":
-			s.err = json.Unmarshal(s.decoder.Event().Data, &s.cur)
-			if s.err != nil {
-				return false
-			}
-			return true
-		case "message_start", "message_delta", "message_stop", "content_block_start", "content_block_delta", "content_block_stop":
-			s.err = json.Unmarshal(s.decoder.Event().Data, &s.cur)
-			if s.err != nil {
-				return false
-			}
-			return true
-		case "ping":
-			continue
-		case "error":
-			s.err = fmt.Errorf("received error while streaming: %s", string(s.decoder.Event().Data))
-			return false
-		}
+	if !s.decoder.Next() {
+		// If decoder.Next() returns false, check if there's an error
+		s.err = s.decoder.Err()
+		return false
 	}
 
-	// decoder.Next() may be false because of an error
-	s.err = s.decoder.Err()
-
-	return false
+	switch s.decoder.Event().Type {
+	case "completion":
+		s.err = json.Unmarshal(s.decoder.Event().Data, &s.cur)
+		if s.err != nil {
+			return false
+		}
+		return true
+	case "message_start", "message_delta", "message_stop", "content_block_start", "content_block_delta", "content_block_stop":
+		s.err = json.Unmarshal(s.decoder.Event().Data, &s.cur)
+		if s.err != nil {
+			return false
+		}
+		return true
+	case "ping":
+		// For ping events, continue to the next event
+		return s.Next()
+	case "error":
+		s.err = fmt.Errorf("received error while streaming: %s", string(s.decoder.Event().Data))
+		return false
+	default:
+		// Skip unknown event types and continue to the next event
+		return s.Next()
+	}
 }
 
 func (s *Stream[T]) Current() T {
