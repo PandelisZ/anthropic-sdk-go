@@ -45,3 +45,17 @@ func VariantFromUnion(u reflect.Value) (any, error) {
 
 	return u.Field(variantIdx).Interface(), nil
 }
+
+// namePrinter is an interface for types that have a Name method
+type namePrinter interface {
+	Name() string
+}
+
+// Ensure ToolUnionUnionParam implements namePrinter
+var _ namePrinter = (*ToolUnionUnionParam)(nil)
+
+// ToolUnionUnionParam defines the interface that tool parameters must implement
+type ToolUnionUnionParam interface {
+	implementsToolUnionUnionParam()
+	Name() string
+}
