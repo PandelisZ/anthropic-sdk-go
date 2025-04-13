@@ -147,6 +147,10 @@ type CacheControlEphemeralParam struct {
 // "null". To check if this field is omitted, use [param.IsOmitted].
 func (f CacheControlEphemeralParam) IsPresent() bool { return !param.IsOmitted(f) && !f.IsNull() }
 func (r CacheControlEphemeralParam) MarshalJSON() (data []byte, err error) {
+	// Initialize Type with default value if it's not explicitly set
+	if string(r.Type) == "" {
+		r.Type = r.Type.Default()
+	}
 	type shadow CacheControlEphemeralParam
 	return param.MarshalObject(r, (*shadow)(&r))
 }
@@ -3789,4 +3793,74 @@ func (u *MessageCountTokensParamsSystemUnion) asAny() any {
 		return &u.OfMessageCountTokenssSystemArray
 	}
 	return nil
+}
+
+// Helper to convert string to param.Opt[string], handling empty strings
+//
+// This is needed because the server may return nil or empty string for a field
+// that should be a param.Opt[string], and we need to convert that correctly.
+func toParam(s string, r resp.Field) param.Opt[string] {
+	if !r.IsPresent() || s == "" {
+		return param.Opt[string]{}
+	}
+	return param.Opt[string]{Value: s}
+}
+
+// Helper to create a Bool
+func Bool(b bool) param.Opt[bool] {
+	return param.Opt[bool]{Value: b}
+}
+
+// paramObj is the struct that is embedded in all param structs
+type paramObj struct {
+	null     bool
+	omitted  bool
+	noSerdeV bool
+}
+
+// IsOmitted returns true if the param is omitted (not in the request)
+func (o paramObj) IsOmitted() bool { return o.omitted }
+
+// Omit returns a copy of this param that's flagged as omitted
+func (o paramObj) Omit() paramObj {
+	out := o
+	out.omitted = true
+	return out
+}
+
+// IsNull returns true if the param is null
+func (o paramObj) IsNull() bool { return o.null }
+
+// Null returns a copy of this param that's flagged as null
+func (o paramObj) Null() paramObj {
+	out := o
+	out.null = true
+	return out
+}
+
+// paramUnion is the struct that is embedded in all param union structs
+type paramUnion struct {
+	null     bool
+	omitted  bool
+	noSerdeV bool
+}
+
+// IsOmitted returns true if the param is omitted (not in the request)
+func (o paramUnion) IsOmitted() bool { return o.omitted }
+
+// Omit returns a copy of this param that's flagged as omitted
+func (o paramUnion) Omit() paramUnion {
+	out := o
+	out.omitted = true
+	return out
+}
+
+// IsNull returns true if the param is null
+func (o paramUnion) IsNull() bool { return o.null }
+
+// Null returns a copy of this param that's flagged as null
+func (o paramUnion) Null() paramUnion {
+	out := o
+	out.null = true
+	return out
 }
