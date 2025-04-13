@@ -38,7 +38,10 @@ func DefaultClientOptions() []option.RequestOption {
 // NewClient generates a new client with the default option read from the
 // environment (ANTHROPIC_API_KEY, ANTHROPIC_AUTH_TOKEN). The option passed in as
 // arguments are applied after these default arguments, and all option will be
-// passed down to the services and requests that this client makes.
+// passed down to the services and requests that this client makes. Cache
+// control defaults to 'ephemeral' to ensure caching behavior.
+//
+// Note: The cache control can be explicitly set while creating requests if needed.
 func NewClient(opts ...option.RequestOption) (r Client) {
 	opts = append(DefaultClientOptions(), opts...)
 
