@@ -148,6 +148,9 @@ type CacheControlEphemeralParam struct {
 func (f CacheControlEphemeralParam) IsPresent() bool { return !param.IsOmitted(f) && !f.IsNull() }
 func (r CacheControlEphemeralParam) MarshalJSON() (data []byte, err error) {
 	type shadow CacheControlEphemeralParam
+	if r.Type == "" {
+		r.Type = constant.Ephemeral("ephemeral")
+	}
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 
@@ -1845,7 +1848,8 @@ type ContentBlockStopEvent struct {
 
 // Returns the unmodified JSON received from the API
 func (r ContentBlockStopEvent) RawJSON() string { return r.JSON.raw }
-func (r *ContentBlockStopEvent) UnmarshalJSON(data []byte) error {
+func```go
+(r *ContentBlockStopEvent) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3636,7 +3640,8 @@ type MessageCountTokensParams struct {
 	//	        "data": "/9j/4AAQSkZJRg..."
 	//	      }
 	//	    },
-	//	    { "type": "text", "text": "What is in this image?" }
+	//	    { "type": "text", "text": "```go
+What is in this image?" }
 	//	  ]
 	//	}
 	//

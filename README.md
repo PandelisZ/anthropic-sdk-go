@@ -305,6 +305,32 @@ func color(s string) string {
 
 </details>
 
+### Cache Control
+
+The SDK supports ephemeral caching through `CacheControlEphemeralParam`, which manages cache behavior by defaulting the `Type` field to "ephemeral" unless explicitly set by the user. This allows for seamless integration without requiring developers to manage caching manually unless desired.
+
+Example usage demonstrating default cache behavior:
+
+```go
+anthropic.NewUserMessage(anthropic.ContentBlockParamUnion{
+    OfRequestTextBlock: &anthropic.TextBlockParam{
+        Text:         content,
+        CacheControl: anthropic.CacheControlEphemeralParam{},
+    },
+})
+```
+
+If you need to explicitly set the `Type`, you can do so as follows:
+
+```go
+anthropic.NewUserMessage(anthropic.ContentBlockParamUnion{
+    OfRequestTextBlock: &anthropic.TextBlockParam{
+        Text:         content,
+        CacheControl: anthropic.CacheControlEphemeralParam{Type: "ephemeral"},
+    },
+})
+```
+
 ### Request fields
 
 The anthropic library uses the [`omitzero`](https://tip.golang.org/doc/go1.24#encodingjsonpkgencodingjson)
@@ -838,3 +864,4 @@ We are keen for your feedback; please open an [issue](https://www.github.com/ant
 ## Contributing
 
 See [the contributing documentation](./CONTRIBUTING.md).
+```
